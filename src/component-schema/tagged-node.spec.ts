@@ -1,6 +1,6 @@
-import { createComponent, Component } from '../src/component-schema/component';
-import { MatchingError, ComponentLoadResult, AstNode, createComponentLoadResult, createAstContext } from '../src/component-schema/ast-node';
-import { TaggedNode } from '../src/component-schema/tagged-node';
+import { createComponent, Component } from './component';
+import { MatchingError, ComponentLoadResult, AstNode, createComponentLoadResult, createAstContext } from './ast-node';
+import { TaggedNode } from './tagged-node';
 
 function* yieldAll<T>(...params: T[]): IterableIterator<T> {
   for (const value of params) {
@@ -66,7 +66,7 @@ describe('ObjectNode', () => {
       },
       "id": {
         target: 'property',
-        child: () => yieldAll<AstNode>(identitfierNode)
+        property: () => yieldAll<AstNode>(identitfierNode)
       },
       "tags": {
         target: 'child',
@@ -78,7 +78,9 @@ describe('ObjectNode', () => {
       "kind": "query",
       "name": "select-all-username",
       "query": "SELECT username FROM users",
-      "id": "my-id",
+      "id": {
+        "kind": "id"
+      },
       "tags": [
         "my-tag",
         "my-tag"
@@ -86,7 +88,9 @@ describe('ObjectNode', () => {
     }, createAstContext('root'))
 
     expect(actualResult).toEqual(expectedResult);
-    expect(identitfierNode.hasIdentity.mock.calls).toEqual([["my-id"]]);
+    expect(identitfierNode.hasIdentity.mock.calls).toEqual([[{
+      "kind": "id"
+    }]]);
     expect(tagNode.hasIdentity.mock.calls).toEqual([["my-tag"], ["my-tag"]]);
   });
 

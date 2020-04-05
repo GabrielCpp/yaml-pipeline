@@ -1,4 +1,4 @@
-import { ComponentCompiled, ComponentInstance } from "../component-runtime/runtime";
+import { ComponentCompiled, ComponentInstance } from "../component-schema/runtime";
 import { Dictionary } from "lodash";
 import { AstNodeDetails } from "../component-schema/schema";
 import { alwaysTrueValidator } from "../component-schema/validators";
@@ -9,36 +9,36 @@ import { TargetBucket } from "../component-schema/node-schema";
 const type = 'log'
 
 function loader(compiledComponent: ComponentCompiled): ComponentInstance {
-  async function invoke(params: Dictionary<unknown>) {
-    let value = compiledComponent.attributes.value;
+    async function invoke(params: Dictionary<unknown>) {
+        let value = compiledComponent.attributes.value;
 
-    if (value === undefined) {
-      value = await compiledComponent.properties.value.invoke(params);
+        if (value === undefined) {
+            value = await compiledComponent.properties.value.invoke(params);
+        }
+
+        console.log(value)
     }
 
-    console.log(value)
-  }
-
-  return {
-    ...compiledComponent,
-    invoke
-  }
+    return {
+        ...compiledComponent,
+        invoke
+    }
 }
 
 
 const astNode: AstNodeDetails = {
-  node: schema => new TaggedNode('log', 'log', {
-    value: {
-      target: new Set<TargetBucket>(['attribute', 'property']),
-      validate: alwaysTrueValidator,
-      property: schema.refTags('symbol-ref')
-    }
-  }),
-  tags: ['fn-step']
+    node: schema => new TaggedNode('log', 'log', {
+        value: {
+            target: new Set<TargetBucket>(['attribute', 'property']),
+            validate: alwaysTrueValidator,
+            property: schema.refTags('symbol-ref')
+        }
+    }),
+    tags: ['fn-step']
 }
 
 export const logComponent: NodeDetails = {
-  id: type,
-  loader,
-  astNode
+    id: type,
+    loader,
+    astNode
 }

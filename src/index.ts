@@ -1,10 +1,10 @@
 import { yamlText } from "./yaml-loader";
-import { AstInterpreter, NodeDetails } from "./program-interpreter";
 import { moduleComponent } from "./components/module";
 import { functionComponent } from "./components/function";
 import { logComponent } from "./components/log";
 import { defineVarComponent } from "./components/define-var";
 import { readVarComponent } from "./components/readvar";
+import { ModuleLoader, NodeDetails } from "./component-schema/module-loader";
 
 const yamlTree = yamlText`
 
@@ -27,16 +27,16 @@ definitions:
 const entrySymbolName = 'main'
 
 const components: NodeDetails[] = [
-  moduleComponent,
-  functionComponent,
-  logComponent,
-  defineVarComponent,
-  readVarComponent
+    moduleComponent,
+    functionComponent,
+    logComponent,
+    defineVarComponent,
+    readVarComponent
 ];
 
 function main() {
-  var interpreter = new AstInterpreter(components)
-  interpreter.run(entrySymbolName, yamlTree)
+    var interpreter = new ModuleLoader(components)
+    interpreter.loadModule(yamlTree)
 }
 
 main()
