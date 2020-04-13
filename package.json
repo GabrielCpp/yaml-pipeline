@@ -21,10 +21,12 @@
     "nunjucks": "^3.2.0"
   },
   "devDependencies": {
+    "@types/faker": "^4.1.11",
     "@types/jest": "^24.0.18",
     "@types/js-yaml": "^3.12.1",
     "@types/node": "^12.7.2",
     "@types/nunjucks": "^3.1.2",
+    "faker": "^4.1.0",
     "jest": "^24.9.0",
     "ts-jest": "^24.0.2",
     "tsc-watch": "^3.0.0",

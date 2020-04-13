@@ -58,13 +58,18 @@ export class ModuleLoader {
         this.startDefinitionId = 'root';
     }
 
+    public addDefinitions(moduleDefinition: Dictionary<(schema: Schema) => TransitionPair[]>) {
+        for (const [id, transitionBuilder] of Object.entries(moduleDefinition)) {
+            this.addDefinition(id, transitionBuilder);
+        }
+    }
+
     public addDefinition(id: string, transitionBuilder: (schema: Schema) => TransitionPair[]) {
         this.moduleDefinition.set(id, {
             id,
             transitions: transitionBuilder(this.schema)
         });
     }
-
 
     public loadModule(moduleRootNode: any[]): Module {
         let definition: ModuleDefinition | undefined = this.moduleDefinition.get(this.startDefinitionId)

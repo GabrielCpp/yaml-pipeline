@@ -1,21 +1,21 @@
-import { AstNode, ComponentLoadResult, AstContext } from "./ast-node";
+import { AstNode, ComponentLoadResult, AstContext, newComponentLoadResult, newMatchingError } from "./ast-node";
 import { createComponent } from "./component";
 
 export class ErrorNode implements AstNode {
-  public type: string = 'error';
+    public type: string = 'error';
 
-  public constructor(private message: string) {
+    public constructor(private message: string) {
 
-  }
-
-  public hasIdentity(node: any): boolean {
-    return true
-  }
-
-  public load(node: any, context: AstContext): ComponentLoadResult {
-    return {
-      component: createComponent('empty'),
-      errors: [{ error: this.message, context }]
     }
-  }
+
+    public hasIdentity(_: unknown): boolean {
+        return true
+    }
+
+    public load(_: unknown, context: AstContext): ComponentLoadResult {
+        return newComponentLoadResult(
+            createComponent('empty'), [
+            newMatchingError(this.message, context)
+        ])
+    }
 }

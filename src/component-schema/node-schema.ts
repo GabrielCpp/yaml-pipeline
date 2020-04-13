@@ -1,4 +1,4 @@
-import { AstNode, ComponentLoadResult, MatchingError, AstContext, addTrace } from "./ast-node";
+import { AstNode, ComponentLoadResult, MatchingError, AstContext, addTrace, newMatchingError, newComponentLoadResult } from "./ast-node";
 import { createComponent, Component } from "./component";
 import { findMatchingNode } from './schema-utils';
 import { Dictionary, isObject } from "lodash";
@@ -41,27 +41,25 @@ export abstract class NodeSchema implements AstNode {
     public abstract hasIdentity(node: any): boolean;
 
     public load(node: any, context: AstContext): ComponentLoadResult {
-        const result: ComponentLoadResult = {
-            errors: [],
-            component: createComponent(this.type)
-        }
+        const result: ComponentLoadResult = newComponentLoadResult(
+            createComponent(this.type)
+        );
 
         if (!Array.isArray(node) && isObject(node)) {
             this.detectMissingKeys(node, result, context);
         }
 
-
         const entries = Object.entries(node).sort(([keyA]: [string, any], [keyB]: [string, any]) => keyA.localeCompare(keyB))
 
-        for (let [nodeKey, nodeValue] of entries) {
+        for (const [nodeKey, nodeValue] of entries) {
             if (this.keys.hasOwnProperty(nodeKey)) {
                 this.applyTargetAction(nodeKey, nodeValue, result, context);
             }
             else {
-                result.errors.push({
-                    error: `No key '${nodeKey}' in possible keys {${Object.keys(this.keys).join(', ')}}`,
+                result.errors.push(newMatchingError(
+                    `No key '${nodeKey}' in possible keys {${Object.keys(this.keys).join(', ')}}`,
                     context
-                });
+                ));
             }
         }
 

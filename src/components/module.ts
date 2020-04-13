@@ -1,9 +1,10 @@
-import { ComponentCompiled, ComponentInstance } from "../component-schema/runtime";
+import { ComponentInstance } from "../component-schema/runtime";
 import { Dictionary } from "lodash";
 import { AstNodeDetails } from "../component-schema/schema";
 import { isStringValidator } from "../component-schema/validators";
 import { TaggedNode } from "../component-schema/tagged-node";
-import { NodeDetails } from "../program-interpreter";
+import { ComponentCompiled, NodeDetails } from "../component-schema/module-loader";
+
 
 const type = 'module'
 
