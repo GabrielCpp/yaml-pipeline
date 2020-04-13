@@ -1,9 +1,8 @@
-import { ComponentCompiled, ComponentInstance } from "../component-schema/runtime";
+import { ComponentCompiled, ComponentInstance, NodeDetails } from "./runtime";
 import { Dictionary } from "lodash";
 import { AstNodeDetails } from "../component-schema/schema";
 import { alwaysTrueValidator } from "../component-schema/validators";
 import { TaggedNode } from "../component-schema/tagged-node";
-import { NodeDetails } from "../program-interpreter";
 import { TargetBucket } from "../component-schema/node-schema";
 
 const type = 'log'

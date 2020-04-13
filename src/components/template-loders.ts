@@ -1,4 +1,4 @@
-import { ComponentCompiled, ComponentInstance } from "../component-schema/runtime";
+import { ComponentCompiled, ComponentInstance } from "./runtime";
 import { Dictionary } from "lodash";
 import nunjucks from 'nunjucks';
 

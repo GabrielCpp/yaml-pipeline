@@ -2,17 +2,8 @@ import { Schema, AstNodeDetails } from "./schema";
 import { AstNode, createAstContext } from "./ast-node";
 import { Dictionary, mapValues } from "lodash";
 import { findMatchingNodeOrUndefined } from "./schema-utils";
-import { ComponentInstance, Module } from "./runtime";
 import { Component } from './component';
 
-export interface ComponentCompiled {
-    type: string;
-    attributes: Dictionary<string | number | boolean>
-    properties: Dictionary<ComponentInstance>
-    children: Dictionary<ComponentInstance[]>
-}
-
-export type ComponentLoader = (component: ComponentCompiled, module: Module) => ComponentInstance;
 export type TransitionPair = [() => IterableIterator<AstNode>, () => ModuleDefinition]
 
 export interface ModuleDefinition {
@@ -20,41 +11,13 @@ export interface ModuleDefinition {
     transitions: TransitionPair[]
 }
 
-export interface NodeDetails {
-    id: string;
-    loader: ComponentLoader;
-    astNode: AstNodeDetails
-}
-
-
-function buildAstNodeDetailsFromList(nodeDetails: NodeDetails[]): Dictionary<AstNodeDetails> {
-    const schemaNode: Dictionary<AstNodeDetails> = nodeDetails.reduce<Dictionary<AstNodeDetails>>((previous, current) => {
-        previous[current.id] = current.astNode;
-        return previous;
-    }, {});
-
-    return schemaNode;
-}
-
-function buildComponentLoaderMapFromNodeDetails(nodeDetails: NodeDetails[]): Map<string, ComponentLoader> {
-    const componentLoaders: Dictionary<ComponentLoader> = nodeDetails.reduce<Dictionary<ComponentLoader>>((previous, current) => {
-        previous[current.id] = current.loader;
-        return previous;
-    }, {});
-
-    return new Map<string, ComponentLoader>(Object.entries(componentLoaders));
-}
-
 export class ModuleLoader {
     private moduleDefinition = new Map<string, ModuleDefinition>();
     private startDefinitionId: string;
     private schema: Schema;
-    private componentLoaders: Map<string, ComponentLoader>
 
-    public constructor(nodeDetails: NodeDetails[]) {
-        this.schema = new Schema(buildAstNodeDetailsFromList(nodeDetails));
-        this.componentLoaders = buildComponentLoaderMapFromNodeDetails(nodeDetails);
-        this.buildComponentInstance = this.buildComponentInstance.bind(this);
+    public constructor(astNodeDetails: Dictionary<AstNodeDetails>) {
+        this.schema = new Schema(astNodeDetails);
         this.startDefinitionId = 'root';
     }
 
@@ -71,13 +34,9 @@ export class ModuleLoader {
         });
     }
 
-    public loadModule(moduleRootNode: any[]): Module {
+    public loadModule(moduleRootNode: any[]): Component[] {
         let definition: ModuleDefinition | undefined = this.moduleDefinition.get(this.startDefinitionId)
-        const moduleLoaded: Module = {
-            definitions: [],
-            dependencies: [],
-            name: '',
-        }
+        const definitions: Component[] = [];
 
         if (definition === undefined) {
             throw new Error();
@@ -96,8 +55,7 @@ export class ModuleLoader {
                         throw new Error();
                     }
 
-                    const componentInstance = this.buildComponentInstance(componentLoadResult.component, moduleLoaded);
-                    moduleLoaded.definitions.push(componentInstance);
+                    definitions.push(componentLoadResult.component);
                     definition = nextDefinition()
                 }
             }
@@ -107,26 +65,6 @@ export class ModuleLoader {
             }
         }
 
-        return moduleLoaded
-    }
-
-    private buildComponentInstance(component: Component, module_: Module): ComponentInstance {
-        const loadComponentInstance = (component: Component) => {
-            if (!this.componentLoaders.has(component.type)) {
-                throw new Error(`No such component loader for ${component.type}`)
-            }
-
-            const loader = this.componentLoaders.get(component.type) as ComponentLoader;
-            const componentCompiled: ComponentCompiled = {
-                type: component.type,
-                attributes: component.attributes,
-                properties: mapValues(component.properties, loadComponentInstance),
-                children: mapValues(component.children, childs => childs.map(loadComponentInstance))
-            }
-
-            return loader(componentCompiled, module_);
-        }
-
-        return loadComponentInstance(component)
+        return definitions
     }
 }

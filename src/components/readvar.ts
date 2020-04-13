@@ -1,7 +1,6 @@
-import { ComponentCompiled, ComponentInstance } from "../component-schema/runtime";
+import { ComponentCompiled, ComponentInstance, NodeDetails } from "./runtime";
 import { Dictionary } from "lodash";
 import { AstNodeDetails } from "../component-schema/schema";
-import { NodeDetails } from "../program-interpreter";
 import { InilineNode } from "../component-schema/inline-node";
 import { isStringValidator } from "../component-schema/validators";
 
