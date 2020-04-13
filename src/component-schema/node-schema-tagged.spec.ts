@@ -1,6 +1,6 @@
 import { createComponent, Component } from './component';
 import { MatchingError, ComponentLoadResult, AstNode, createAstContext, newComponentLoadResult } from './ast-node';
-import { TaggedNode } from './tagged-node';
+import { TaggedNode } from './node-schema-tagged';
 
 function* yieldAll<T>(...params: T[]): IterableIterator<T> {
     for (const value of params) {

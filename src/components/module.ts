@@ -2,7 +2,7 @@ import { ComponentInstance, ComponentCompiled, NodeDetails } from "./runtime";
 import { Dictionary } from "lodash";
 import { AstNodeDetails } from "../component-schema/schema";
 import { isStringValidator } from "../component-schema/validators";
-import { TaggedNode } from "../component-schema/tagged-node";
+import { TaggedNode } from "../component-schema/node-schema-tagged";
 
 
 const type = 'module'
