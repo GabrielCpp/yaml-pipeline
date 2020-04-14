@@ -1,8 +1,8 @@
 import { ComponentCompiled, ComponentInstance, NodeDetails } from "./runtime";
 import { Dictionary } from "lodash";
-import { AstNodeDetails } from "../component-schema/schema";
-import { InilineNode } from "../component-schema/node-schema-inline";
-import { isStringValidator } from "../component-schema/validators";
+import { AstNodeDetails } from "../yaml-schema/schema";
+import { InilineNode } from "../yaml-schema/node-schema-inline";
+import { isStringValidator } from "../yaml-schema/validators";
 
 const type = 'symbol-ref';
 

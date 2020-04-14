@@ -1,8 +1,8 @@
 import { ComponentCompiled, ComponentInstance, NodeDetails } from "./runtime";
 import { Dictionary } from "lodash";
-import { AstNodeDetails } from "../component-schema/schema";
-import { isStringValidator } from "../component-schema/validators";
-import { TaggedNode } from "../component-schema/node-schema-tagged";
+import { AstNodeDetails } from "../yaml-schema/schema";
+import { isStringValidator } from "../yaml-schema/validators";
+import { TaggedNode } from "../yaml-schema/node-schema-tagged";
 
 const type = 'fn'
 
