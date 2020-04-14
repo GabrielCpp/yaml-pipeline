@@ -34,12 +34,12 @@ export function createPod(
 }
 
 
-export interface IMethod {
+export interface IMethod extends IComponent {
     params: IBinding[]
     outputType: string
 }
 
-export interface IServiceContract extends IComponent {
+export interface IServiceContract {
     external: boolean
     methods: IMethod[]
 }
@@ -59,7 +59,7 @@ export interface IUnitTest {
     targetType: string;
     arange: ITestArrage[];
     act: ITestAct;
-    assert: ITestAssert;
+    assert: ITestAssert[];
 }
 
 export interface IApplicationDefinition {
@@ -116,11 +116,35 @@ function dotJoin(elements: string[]) {
     return elements.join('.');
 }
 
+function buildPyPod(component: unknown): File {
+    const pod = component as Pod;
+    const fileContent = new Aggregator()
+
+    fileContent.writeLine('from dataclasses import dataclass')
+
+    for (const dependency of pod.dependencies) {
+        fileContent.writeLine(`from ${dotJoin(dependency.packagePath)} import ${dependency.name}`)
+    }
+
+    fileContent.endl(2)
+
+    fileContent.writeLine('@dataclass')
+    fileContent.writeLine(`class ${pod.name}`)
+    fileContent.scope(() => {
+        for (const [name, fieldComponent] of pod.fieldByNames.entries()) {
+            fileContent.writeLine(`${name}: ${fieldComponent.name}`)
+        }
+    })
+
+
+    return createFile(pod.name, fileContent.result)
+}
+
 export class PythonTranspiler {
     public transpile(app: IApplicationDefinition): File[] {
         const files: File[] = []
         const mapping = new Map<string, ComponentHandler>([
-            ['pod', this.buildPod]
+            ['pod', buildPyPod]
         ])
 
         for (const component of getAppComponets(app)) {
@@ -134,29 +158,5 @@ export class PythonTranspiler {
         }
 
         return files;
-    }
-
-    public buildPod(component: unknown): File {
-        const pod = component as Pod;
-        const fileContent = new Aggregator()
-
-        fileContent.writeLine('from dataclasses import dataclass')
-
-        for (const dependency of pod.dependencies) {
-            fileContent.writeLine(`from ${dotJoin(dependency.packagePath)} import ${dependency.name}`)
-        }
-
-        fileContent.endl(2)
-
-        fileContent.writeLine('@dataclass')
-        fileContent.writeLine(`class ${pod.name}`)
-        fileContent.scope(() => {
-            for (const [name, fieldComponent] of pod.fieldByNames.entries()) {
-                fileContent.writeLine(`${name}: ${fieldComponent.name}`)
-            }
-        })
-
-
-        return createFile(pod.name, fileContent.result)
     }
 }

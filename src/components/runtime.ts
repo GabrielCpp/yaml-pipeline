@@ -1,7 +1,7 @@
 import { Dictionary, mapValues } from "lodash";
-import { AstNodeDetails } from "../component-schema/schema";
-import { Component } from "../component-schema/component";
-import { ModuleLoader } from '../component-schema/module-loader';
+import { AstNodeDetails } from "../yaml-schema/schema";
+import { Component } from "../yaml-schema/component";
+import { ModuleLoader } from '../yaml-schema/module-loader';
 
 export interface ComponentInstance {
     type: string;

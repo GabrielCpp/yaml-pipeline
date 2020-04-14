@@ -1,9 +1,9 @@
 import { ComponentCompiled, ComponentInstance, NodeDetails } from "./runtime";
 import { Dictionary } from "lodash";
-import { AstNodeDetails } from "../component-schema/schema";
-import { alwaysTrueValidator } from "../component-schema/validators";
-import { TaggedNode } from "../component-schema/node-schema-tagged";
-import { TargetBucket } from "../component-schema/node-schema";
+import { AstNodeDetails } from "../yaml-schema/schema";
+import { alwaysTrueValidator } from "../yaml-schema/validators";
+import { TaggedNode } from "../yaml-schema/node-schema-tagged";
+import { TargetBucket } from "../yaml-schema/node-schema";
 
 const type = 'log'
 
