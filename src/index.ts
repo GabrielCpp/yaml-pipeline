@@ -1,2 +1,2 @@
 export * from './yaml-schema'
-export * from './yaml-runtime'
+export * from './runtime-binding'
