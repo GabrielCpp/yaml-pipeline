@@ -21,6 +21,18 @@ export class ModuleLoader {
         this.startDefinitionId = 'root';
     }
 
+    public refModule(id: string): () => ModuleDefinition {
+        return () => {
+            const moduleDefinition = this.moduleDefinition.get(id);
+
+            if (moduleDefinition === undefined) {
+                throw new Error(`Module ${id} dot not exist`)
+            }
+
+            return moduleDefinition;
+        }
+    }
+
     public addDefinitions(moduleDefinition: Dictionary<(schema: Schema) => TransitionPair[]>) {
         for (const [id, transitionBuilder] of Object.entries(moduleDefinition)) {
             this.addDefinition(id, transitionBuilder);
@@ -34,12 +46,12 @@ export class ModuleLoader {
         });
     }
 
-    public loadModule(moduleRootNode: any[]): Component[] {
+    public loadModule(moduleRootNode: unknown[]): Component[] {
         let definition: ModuleDefinition | undefined = this.moduleDefinition.get(this.startDefinitionId)
         const definitions: Component[] = [];
 
         if (definition === undefined) {
-            throw new Error();
+            throw new Error(`Root definition ${this.startDefinitionId} was not found.`);
         }
 
         for (const currentModuleNode of moduleRootNode) {
@@ -52,7 +64,7 @@ export class ModuleLoader {
                     const componentLoadResult = result.load(currentModuleNode, createAstContext(this.startDefinitionId));
 
                     if (componentLoadResult.errors.length > 0) {
-                        throw new Error();
+                        throw new Error(`Component containt error ${componentLoadResult.errors}`);
                     }
 
                     definitions.push(componentLoadResult.component);
@@ -61,7 +73,7 @@ export class ModuleLoader {
             }
 
             if (result === undefined) {
-                throw new Error();
+                throw new Error(`No matching node`);
             }
         }
 
