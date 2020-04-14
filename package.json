@@ -27,9 +27,9 @@
         "@types/nunjucks": "^3.1.2",
         "faker": "^4.1.0",
         "jest": "^24.9.0",
+        "rimraf": "^3.0.0",
         "ts-jest": "^24.0.2",
         "tsc-watch": "^3.0.0",
-        "typescript": "^3.5.3",
-        "rimraf": "^3.0.0"
+        "typescript": "^3.8.3"
     }
 }
