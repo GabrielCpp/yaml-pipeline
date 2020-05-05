@@ -87,7 +87,10 @@ export class Runtime {
 
     public run(moduleName: string, typeName: string, params: Dictionary<unknown>) {
         const result = this.getModuleByName(moduleName).definitions.find(s => s.type === typeName)
-        result?.invoke(params)
+
+        if (result !== undefined) {
+            result.invoke(params)
+        }
     }
 
     public addModule(module: Module) {

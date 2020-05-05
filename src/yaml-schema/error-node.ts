@@ -1,5 +1,5 @@
 import { AstNode, ComponentLoadResult, AstContext, newComponentLoadResult, newMatchingError } from "./ast-node";
-import { createComponent } from "./component";
+import { newComponent } from "./component";
 
 export class ErrorNode implements AstNode {
     public type: string = 'error';
@@ -14,7 +14,7 @@ export class ErrorNode implements AstNode {
 
     public load(_: unknown, context: AstContext): ComponentLoadResult {
         return newComponentLoadResult(
-            createComponent('empty'), [
+            newComponent('empty'), [
             newMatchingError(this.message, context)
         ])
     }

@@ -4,6 +4,7 @@ export * from './error-node';
 export * from './module-loader';
 export * from './node-schema';
 export * from './node-schema-inline';
+export * from './node-schema-object';
 export * from './node-schema-tagged';
 export * from './schema';
 export * from './schema-utils';

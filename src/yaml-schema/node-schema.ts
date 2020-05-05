@@ -1,11 +1,13 @@
 import { AstNode, ComponentLoadResult, MatchingError, AstContext, addTrace, newMatchingError, newComponentLoadResult } from "./ast-node";
-import { createComponent, Component } from "./component";
+import { newComponent, Component } from "./component";
 import { findMatchingNode } from './schema-utils';
 import { Dictionary, isObject } from "lodash";
 import { isString, isNumber, isBoolean } from "util";
 
 export type TargetBucket = 'attribute' | 'property' | 'child';
-export type NodeValidator = (node: any, context: AstContext) => MatchingError[];
+export type NodeValidator = (node: unknown, context: AstContext) => MatchingError[];
+
+export type NodeSchemaKeys = Dictionary<ObjectNodeKeyDetails>
 
 export interface ObjectNodeKeyDetails {
     target: TargetBucket | Set<TargetBucket>;
@@ -33,7 +35,7 @@ export abstract class NodeSchema implements AstNode {
 
     public constructor(
         public type: string,
-        private keys: { [id: string]: ObjectNodeKeyDetails }
+        private keys: NodeSchemaKeys
     ) {
 
     }
@@ -42,7 +44,7 @@ export abstract class NodeSchema implements AstNode {
 
     public load(node: any, context: AstContext): ComponentLoadResult {
         const result: ComponentLoadResult = newComponentLoadResult(
-            createComponent(this.type)
+            newComponent(this.type)
         );
 
         if (!Array.isArray(node) && isObject(node)) {

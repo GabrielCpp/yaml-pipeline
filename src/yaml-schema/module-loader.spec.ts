@@ -1,6 +1,6 @@
 import { ModuleLoader } from "./module-loader";
 import { TaggedNode } from "./node-schema-tagged";
-import { Component, createComponent } from "./component";
+import { Component, newComponent } from "./component";
 
 describe('ModuleLoader', () => {
     let moduleLoader: ModuleLoader;
@@ -30,22 +30,22 @@ describe('ModuleLoader', () => {
 
     it('Given module sequence should contrain order', () => {
         const expectedComponents: Component[] = [
-            createComponent('node-type-a', {
+            newComponent('node-type-a', {
                 'kind': 'node-kind-a',
                 'my-name': 'Gab'
             }),
-            createComponent('node-type-b', {
+            newComponent('node-type-b', {
                 'kind': 'node-kind-b',
                 'his-name': 'Vince'
             })
         ];
 
-        moduleLoader.addDefinition('root', schema => [
-            [schema.refIds('node-a'), moduleLoader.refModule('module-b')]
+        moduleLoader.addDefinition('root', (loader, schema) => [
+            [schema.refIds('node-a'), loader.refModule('module-b')]
         ]);
 
-        moduleLoader.addDefinition('module-b', schema => [
-            [schema.refIds('node-b'), moduleLoader.refModule('module-b')]
+        moduleLoader.addDefinition('module-b', (loader, schema) => [
+            [schema.refIds('node-b'), loader.refModule('module-b')]
         ]);
 
         const actualComponents = moduleLoader.loadModule([

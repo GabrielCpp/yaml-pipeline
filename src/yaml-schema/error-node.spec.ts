@@ -1,7 +1,7 @@
 import faker from 'faker';
 import { ErrorNode } from './error-node';
 import { createAstContext, newComponentLoadResult, newMatchingError } from './ast-node';
-import { createComponent } from './component';
+import { newComponent } from './component';
 
 describe('error-node', () => {
     const message = 'Critical failure';
@@ -19,7 +19,7 @@ describe('error-node', () => {
     it('Given any node should give error on loading', () => {
         const context = createAstContext('root');
         const expectedComponent = newComponentLoadResult(
-            createComponent('empty'), [
+            newComponent('empty'), [
             newMatchingError(message, context)
         ]);
 

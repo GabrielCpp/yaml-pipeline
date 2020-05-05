@@ -1,4 +1,4 @@
-import { createComponent, Component } from './component';
+import { newComponent, Component } from './component';
 import { MatchingError, ComponentLoadResult, AstNode, createAstContext, newComponentLoadResult } from './ast-node';
 import { TaggedNode } from './node-schema-tagged';
 
@@ -36,12 +36,12 @@ describe('ObjectNode', () => {
     })
 
     it('Given correct node attributes should component attributes be correctly filled', () => {
-        const identitfierComponent = createComponent('identitifier', { "kind": "id" });
+        const identitfierComponent = newComponent('identitifier', { "kind": "id" });
         const identitfierNode = mockAstNode('id-node', identitfierComponent)
-        const tagComponent = createComponent('tag', { "kind": "tag" });
+        const tagComponent = newComponent('tag', { "kind": "tag" });
         const tagNode = mockAstNode('tag-node', tagComponent)
         const expectedResult = newComponentLoadResult(
-            createComponent(
+            newComponent(
                 'query',
                 {
                     "kind": "query",

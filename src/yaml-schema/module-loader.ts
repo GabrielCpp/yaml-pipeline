@@ -5,6 +5,7 @@ import { findMatchingNodeOrUndefined } from "./schema-utils";
 import { Component } from './component';
 
 export type TransitionPair = [() => IterableIterator<AstNode>, () => ModuleDefinition]
+export type ModuleTransitionBuilder = (moduleLoader: ModuleLoader, schema: Schema) => TransitionPair[]
 
 export interface ModuleDefinition {
     id: string;
@@ -16,9 +17,10 @@ export class ModuleLoader {
     private startDefinitionId: string;
     private schema: Schema;
 
-    public constructor(astNodeDetails: Dictionary<AstNodeDetails>) {
+    public constructor(astNodeDetails: Dictionary<AstNodeDetails> = {}, moduleDefinition: Dictionary<ModuleTransitionBuilder> = {}) {
         this.schema = new Schema(astNodeDetails);
         this.startDefinitionId = 'root';
+        this.addDefinitions(moduleDefinition)
     }
 
     public refModule(id: string): () => ModuleDefinition {
@@ -33,17 +35,19 @@ export class ModuleLoader {
         }
     }
 
-    public addDefinitions(moduleDefinition: Dictionary<(schema: Schema) => TransitionPair[]>) {
+    public addDefinitions(moduleDefinition: Dictionary<ModuleTransitionBuilder>) {
         for (const [id, transitionBuilder] of Object.entries(moduleDefinition)) {
             this.addDefinition(id, transitionBuilder);
         }
     }
 
-    public addDefinition(id: string, transitionBuilder: (schema: Schema) => TransitionPair[]) {
+    public addDefinition(id: string, transitionBuilder: ModuleTransitionBuilder): ModuleLoader {
         this.moduleDefinition.set(id, {
             id,
-            transitions: transitionBuilder(this.schema)
+            transitions: transitionBuilder(this, this.schema)
         });
+
+        return this;
     }
 
     public loadModule(moduleRootNode: unknown[]): Component[] {
@@ -64,7 +68,7 @@ export class ModuleLoader {
                     const componentLoadResult = result.load(currentModuleNode, createAstContext(this.startDefinitionId));
 
                     if (componentLoadResult.errors.length > 0) {
-                        throw new Error(`Component containt error ${componentLoadResult.errors}`);
+                        throw new Error(`Component containt error ${JSON.stringify(componentLoadResult.errors)}`);
                     }
 
                     definitions.push(componentLoadResult.component);

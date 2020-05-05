@@ -1,6 +1,6 @@
 import { NodeSchema } from "./node-schema"
 import { AstContext, createAstContext, newComponentLoadResult, MatchingError, newMatchingError } from './ast-node';
-import { createComponent } from "./component";
+import { newComponent } from "./component";
 
 class NodeSchemaStub extends NodeSchema {
     public hasIdentity(node: any): boolean {
@@ -54,8 +54,8 @@ describe('NodeSchema', () => {
 
     it('Given component with sub property should parse property', () => {
         const expectedComponent = newComponentLoadResult(
-            createComponent('test-type', {}, {
-                'status': createComponent('marital-status', {
+            newComponent('test-type', {}, {
+                'status': newComponent('marital-status', {
                     'is-single': true
                 })
             })
@@ -73,9 +73,9 @@ describe('NodeSchema', () => {
 
     it('Given component with child should parse child', () => {
         const expectedComponent = newComponentLoadResult(
-            createComponent('test-type', {}, {}, {
+            newComponent('test-type', {}, {}, {
                 'children': [
-                    createComponent('child', {
+                    newComponent('child', {
                         'name': 'John'
                     })
                 ]
@@ -95,7 +95,7 @@ describe('NodeSchema', () => {
 
     it('Given basic static component should get attribute in component', () => {
         const expectedComponent = newComponentLoadResult(
-            createComponent('test-type', {
+            newComponent('test-type', {
                 'my-name': 'Gabriel'
             })
         )
@@ -111,7 +111,7 @@ describe('NodeSchema', () => {
 
     it('Given ill formed attribute should say it do not exist', () => {
         const expectedComponent = newComponentLoadResult(
-            createComponent('test-type'),
+            newComponent('test-type'),
             [
                 newMatchingError("No key 'not-exist' in possible keys {my-name, children, status}", context)
             ]
