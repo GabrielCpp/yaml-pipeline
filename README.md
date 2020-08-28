@@ -6,7 +6,7 @@ Allow to automate redundant tasks require things as http(s) requests, doing sql/
 Task can be automated by describing steps in yaml file using a various set of command.
 
 Example:
-```
+```yaml
 # some-file.yml
 - kind: custom-command
   assigns:
@@ -84,4 +84,4 @@ Example:
     snapshotPath: { $expr: 'joinPath(snapshotBasePath, "02 - login-with-user.png")' }
     waitForEvents: [ 'load' ]
 
-```yaml
+```
