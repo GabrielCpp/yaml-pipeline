@@ -1,16 +1,10 @@
-import { injectable, inject } from 'inversify';
-import { PipelineActionHandler } from '../action-handler';
-import { PipelineActionDetails } from '../action-details';
-import {
-  PROCEDURE_FILE_EXECUTOR,
-  ProcedureFileExecutor,
-} from '../procedure-file-executor';
-import { PipelineRuntime } from '../pipeline-runtime';
-import {
-  APPLICATION_LIFETIME,
-  ApplicationLifetime,
-} from '@/application-lifetime';
+import { ApplicationLifetime, APPLICATION_LIFETIME } from '@/application-lifetime';
 import { sleep } from '@/common';
+import { inject, injectable } from 'inversify';
+import { PipelineActionDetails } from '../action-details';
+import { PipelineActionHandler } from '../action-handler';
+import { PipelineRuntime } from '../pipeline-runtime';
+import { ProcedureFileExecutor, PROCEDURE_FILE_EXECUTOR } from '../procedure-file-executor';
 
 interface PollTarget {
   polledProcedurePath: string;
@@ -20,7 +14,7 @@ interface PollTarget {
 export interface PollTargetActionDetails extends PipelineActionDetails {
   exitPollCondition: (...results: unknown[]) => boolean;
   maxRetryCount: number;
-  timeBetweenEachPoolInS: number;
+  timeBetweenEachPollInS: number;
   storeOutcomeInVariable?: string;
   targets: PollTarget[];
 }
@@ -79,7 +73,7 @@ export class PollTargetActionHandler
       currentRetryCount++;
 
       await Promise.race([
-        sleep(actionDetails.timeBetweenEachPoolInS * 1000),
+        sleep(actionDetails.timeBetweenEachPollInS * 1000),
         exitPromise,
       ]);
     }

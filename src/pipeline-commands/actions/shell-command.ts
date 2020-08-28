@@ -1,8 +1,8 @@
-import { injectable } from 'inversify';
-import { PipelineActionHandler } from '../action-handler';
-import { PipelineActionDetails } from '../action-details';
 import { exec } from 'child_process';
+import { injectable } from 'inversify';
 import { promisify } from 'util';
+import { PipelineActionDetails } from '../action-details';
+import { PipelineActionHandler } from '../action-handler';
 import { PipelineRuntime } from '../pipeline-runtime';
 
 const execPromise = promisify(exec);
@@ -11,7 +11,7 @@ export interface ShellCommandActionDetails extends PipelineActionDetails {
   command: string;
   timeoutInS?: number;
   cwd?: string;
-  storeAsJson?: string;
+  output?: (out: string) => Promise<void>;
 }
 
 export const SHELL_COMMAND_ACTION_HANDLER = Symbol.for(
@@ -32,9 +32,8 @@ export class ShellCommandActionHandler
       timeout: timeoutInS * 1000,
     });
 
-    if (actionDetails.storeAsJson !== undefined) {
-      const parsedOutput = JSON.parse(result.stdout);
-      runtime.setVariable(actionDetails.storeAsJson, parsedOutput);
+    if (actionDetails.output !== undefined) {
+      actionDetails.output(result.stdout)
     } else {
       console.log(result.stdout.trim());
       console.error(result.stderr.trim());

@@ -1,39 +1,87 @@
 
-# Installation & running the tool
+# yaml-pipeline
 
-1. In folder ServiceBusManagementClient do 
+Allow to automate redundant tasks require things as http(s) requests, doing sql/mongo queries, clicking on web ui or doing shell commands.
 
+Task can be automated by describing steps in yaml file using a various set of command.
+
+Example:
 ```
-yarn install 
-yarn build
-```
+# some-file.yml
+- kind: custom-command
+  assigns:
+  # defined some variables
+  - distantSqlDatabaseEnvVarName: SQLDB_1
+  - myNetworkSqldatabaseEnvVarName: SQLDB_2
+  - hostBaseUrl: https://example.xyz/api/do-something
+  - userCredentialEnvVar: USER_CREDENTIAL
+  - snapshotBasePath: ./snapchots
 
-2. In main folder do 
+# Do an sql query 
+- kind: sql-query
+  # connection string must be in environement variables 
+  envVarName: { $expr: distantSqlDatabaseEnvVarName }
+  display: Find a set of valid cards
+  queries:
+  # Create a function doing ($0) => setVar("cards")(iterableToArray()($0))
+  - output: { expr$: '$0 | iterableToArray() | setVar("cards")' } 
+    sql: >
+      SELECT TOP (100) migration_id
+      FROM migrations;
 
-Create an .env file to store connection string. It will be loaded as environement variables when the app start.
-The format is  ABC = XYZ
+# Perform http(s) request using axios
+- kind: http-request   
+  display: Authenticate to some site
+  # $expr with $ before mean it evaluate expression BEFORE the step is executed, which in this case give a function.
+  output: { $expr: setVar("authResult") }
+  method: GET 
+  # hostBaseUrl is replaced by the content of the variable
+  baseUrl: { $expr: hostBaseUrl }
+  url: /
+  queries:
+    # par environement variable value formatted as json and pick a field which will be passed as query string to the request 
+    username: { $expr: 'paseJson(getEnvVar(userCredentialEnvVar)) | curryGet("username")' }
+    password: { $expr: 'paseJson(getEnvVar(userCredentialEnvVar)) | curryGet("password")' }
 
-```
-yarn install 
-yarn build
-yarn start stalk --procedureFilePath=./data/procedures/proc.yaml
-```
 
-# For dev
+# Do something unil a condition become try or until maximum amount of retry is reached
+- kind: poll-target
+  display: Poll until something happen
+  # eval$ enable to create js snipped as () => ($, $helpers) => '$.$0 === "It worked!"'
+  # Parameter $ is the bucket of variables in the pipeline
+  # Parameter $helpers is a es6 Map containing helpers function (which are avaible directly in $expr and expr$)
+  # $.$0 is set when the first function is called
+  exitPollCondition: { eval$: '$.$0 === "It worked!"' }
+  timeBetweenEachPollInS: 0.5
+  maxRetryCount: 10
+  targets: 
+  # Each child procedure have have separate variable namespace, so to variables must be explicitly passed
+  - polledProcedurePath: ./path/to/some/other/yaml/procedure
+    params: 
+      hostBaseUrl: { $expr: hostBaseUrl }
 
-Instead of building and running each time you can use the command 
 
-```
-yarn build:dev
-```
+- kind: shell
+  output: { $expr: setVar("cmdResult") }
+  command: 'gcloud compute ...'
+  cwd: ./command/working/directory/path
 
-It will rebuild and run each time you save a file in src folder. To lauch your command again you can set an environement variable COMMAND = stalk --procedureFilePath=./examples/download-log-data.yaml inside .env file.
+- kind: puppeteer-job 
+  display: Login to portal and take snaptchots
+  steps:
+  - commandName: goto
+    url: { $expr: hostBaseUrl }
+    options: { waitUntil: 'networkidle2' }
+    snapshotPath: { $expr: 'joinPath(snapshotBasePath, "01 - open-site.png")' }
+  - commandName: set-input
+    path: 'input[name="username"]'
+    value: { $expr: 'paseJson(getEnvVar(userCredentialEnvVar)) | curryGet("username")' }
+  - commandName: set-input
+    path: 'input[name="password"]'
+    value: { $expr: 'paseJson(getEnvVar(userCredentialEnvVar)) | curryGet("password")' }
+  - commandName: click
+    path: 'input[name="login"]'
+    snapshotPath: { $expr: 'joinPath(snapshotBasePath, "02 - login-with-user.png")' }
+    waitForEvents: [ 'load' ]
 
-# Détails about the steps in yaml file.
-
-Attributes avaible for each step:
-* display: Optional field showing a string when the command is run.
-* skip: Optional field used to skip a step when set to true.
-* kind: Manadatory identifier specifying the step to run.
-
-Specific step paramteters details can be found inside pipeline-commands/actions/<some action>.ts
+```yaml

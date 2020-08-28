@@ -8,6 +8,7 @@
   "files": [
     "dist/**/*"
   ],
+  "node": ">=12.18.0",
   "scripts": {
     "test": "jest --config jest.config.js --runInBand --no-cache",
     "build:dev": "yarn run clean && tsc-watch --onSuccess \"node --enable-source-maps ./dist/src/index.js\"",
